@@ -8,6 +8,7 @@ abstract class CreateEventEvent extends Equatable {
 }
 
 class SubmitEventCreation extends CreateEventEvent {
+  final int organizerId; // Added this field
   final String title;
   final String description;
   final String location;
@@ -15,6 +16,7 @@ class SubmitEventCreation extends CreateEventEvent {
   final int capacity;
 
   const SubmitEventCreation({
+    required this.organizerId,
     required this.title,
     required this.description,
     required this.location,
@@ -23,5 +25,5 @@ class SubmitEventCreation extends CreateEventEvent {
   });
 
   @override
-  List<Object> get props => [title, description, location, date, capacity];
+  List<Object> get props => [organizerId, title, description, location, date, capacity];
 }

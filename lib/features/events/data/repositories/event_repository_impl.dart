@@ -49,6 +49,30 @@ class EventRepositoryImpl implements EventRepository {
   }
 
   @override
+  Future<Either<Failure, EventEntity>> updateEvent(int eventId, String title, String description, String location, DateTime eventDate, int capacity) async {
+    try {
+      final remoteEvent = await remoteDataSource.updateEvent(eventId, title, description, location, eventDate, capacity);
+      return Right(remoteEvent);
+    } on ServerException catch (e) {
+      return Left(ServerFailure(e.message));
+    } catch (e) {
+      return Left(ServerFailure());
+    }
+  }
+
+  @override
+  Future<Either<Failure, EventEntity>> publishEvent(int eventId, int organizerId) async {
+    try {
+      final remoteEvent = await remoteDataSource.publishEvent(eventId, organizerId);
+      return Right(remoteEvent);
+    } on ServerException catch (e) {
+      return Left(ServerFailure(e.message));
+    } catch (e) {
+      return Left(ServerFailure());
+    }
+  }
+
+  @override
   Future<Either<Failure, void>> deleteEvent(int id) async {
     try {
       await remoteDataSource.deleteEvent(id);

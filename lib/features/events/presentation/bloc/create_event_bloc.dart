@@ -13,7 +13,7 @@ class CreateEventBloc extends Bloc<CreateEventEvent, CreateEventState> {
   Future<void> _onSubmitEventCreation(SubmitEventCreation event, Emitter<CreateEventState> emit) async {
     emit(CreateEventLoading());
     final result = await createEventUseCase(CreateEventParams(
-      organizerId: 0, // derived server-side from JWT
+      organizerId: event.organizerId, // Use the ID from the event
       title: event.title,
       description: event.description,
       location: event.location,
@@ -22,8 +22,8 @@ class CreateEventBloc extends Bloc<CreateEventEvent, CreateEventState> {
     ));
 
     result.fold(
-      (failure) => emit(CreateEventError(failure.message)),
-      (eventData) => emit(CreateEventSuccess(eventData)),
+          (failure) => emit(CreateEventError(failure.message)),
+          (eventData) => emit(CreateEventSuccess(eventData)),
     );
   }
 }

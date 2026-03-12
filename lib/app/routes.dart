@@ -10,6 +10,7 @@ import '../features/events/presentation/pages/create_event_screen.dart';
 import '../features/events/presentation/pages/manage_ticket_tiers_screen.dart';
 import '../features/qr_checkin/presentation/pages/qr_scanner_screen.dart';
 import '../features/analytics/presentation/pages/event_analytics_screen.dart';
+import '../features/events/domain/entities/event_entity.dart';
 
 final GlobalKey<NavigatorState> rootNavigatorKey = GlobalKey<NavigatorState>();
 
@@ -53,7 +54,10 @@ final GoRouter appRouter = GoRouter(
     GoRoute(
       path: '/create-event',
       name: 'createEvent',
-      builder: (context, state) => const CreateEventScreen(),
+      builder: (context, state) {
+        final event = state.extra as EventEntity?;
+        return CreateEventScreen(event: event);
+      },
     ),
     GoRoute(
       path: '/manage-tiers/:eventId',

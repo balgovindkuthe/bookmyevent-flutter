@@ -17,12 +17,16 @@ import '../features/events/domain/repositories/event_repository.dart';
 import '../features/events/domain/usecases/get_events_usecase.dart';
 import '../features/events/domain/usecases/get_event_by_id_usecase.dart';
 import '../features/events/domain/usecases/create_event_usecase.dart';
+import '../features/events/domain/usecases/update_event_usecase.dart';
+import '../features/events/domain/usecases/publish_event_usecase.dart';
+import '../features/events/domain/usecases/delete_event_usecase.dart';
 import '../features/events/domain/usecases/get_tiers_usecase.dart';
 import '../features/events/domain/usecases/create_tier_usecase.dart';
 import '../features/events/presentation/bloc/event_list_bloc.dart';
 import '../features/events/presentation/bloc/event_detail_bloc.dart';
 import '../features/events/presentation/bloc/organizer_bloc.dart';
 import '../features/events/presentation/bloc/create_event_bloc.dart';
+import '../features/events/presentation/bloc/update_event_bloc.dart';
 import '../features/events/presentation/bloc/ticket_tier_bloc.dart';
 
 // Bookings Feature
@@ -103,6 +107,9 @@ Future<void> init() async {
   sl.registerLazySingleton(() => GetEventsUseCase(sl()));
   sl.registerLazySingleton(() => GetEventByIdUseCase(sl()));
   sl.registerLazySingleton(() => CreateEventUseCase(sl()));
+  sl.registerLazySingleton(() => UpdateEventUseCase(sl()));
+  sl.registerLazySingleton(() => PublishEventUseCase(sl()));
+  sl.registerLazySingleton(() => DeleteEventUseCase(sl()));
   sl.registerLazySingleton(() => GetTiersForEventUseCase(sl()));
   sl.registerLazySingleton(() => CreateTicketTierUseCase(sl()));
 
@@ -113,8 +120,15 @@ Future<void> init() async {
       getTiersForEventUseCase: sl(),
     ),
   );
-  sl.registerFactory(() => OrganizerBloc(getEventsUseCase: sl()));
+  sl.registerFactory(
+    () => OrganizerBloc(
+      getEventsUseCase: sl(),
+      deleteEventUseCase: sl(),
+      publishEventUseCase: sl(),
+    ),
+  );
   sl.registerFactory(() => CreateEventBloc(createEventUseCase: sl()));
+  sl.registerFactory(() => UpdateEventBloc(updateEventUseCase: sl()));
   sl.registerFactory(
     () => TicketTierBloc(
       getTiersUseCase: sl(),

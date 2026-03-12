@@ -10,6 +10,8 @@ abstract class EventRemoteDataSource {
   Future<PageEventModel> getEvents(int page, int size);
   Future<EventModel> getEventById(int id);
   Future<EventModel> createEvent(int organizerId, String title, String description, String location, DateTime eventDate, int capacity);
+  Future<EventModel> updateEvent(int eventId, String title, String description, String location, DateTime eventDate, int capacity);
+  Future<EventModel> publishEvent(int eventId, int organizerId);
   Future<void> deleteEvent(int id);
   
   // Tiers
@@ -81,10 +83,50 @@ class EventRemoteDataSourceImpl implements EventRemoteDataSource {
   }
 
   @override
+  Future<EventModel> updateEvent(int eventId, String title, String description, String location, DateTime eventDate, int capacity) async {
+    try {
+      final response = await apiClient.put(
+        ApiConstants.eventById(eventId),
+        data: {
+          'title': title,
+          'description': description,
+          'location': location,
+          'eventDate': eventDate.toUtc().toIso8601String(),
+          'capacity': capacity,
+        },
+      );
+      if (response.statusCode == 200) {
+        return EventModel.fromJson(response.data);
+      } else {
+        throw ServerException('Failed to update event');
+      }
+    } on DioException catch (e) {
+      throw ServerException(e.message ?? 'Unknown Error updating event');
+    }
+  }
+
+  @override
+  Future<EventModel> publishEvent(int eventId, int organizerId) async {
+    try {
+      final response = await apiClient.post(
+        ApiConstants.publishEvent(eventId),
+        queryParameters: {'organizerId': organizerId},
+      );
+      if (response.statusCode == 200) {
+        return EventModel.fromJson(response.data);
+      } else {
+        throw ServerException('Failed to publish event');
+      }
+    } on DioException catch (e) {
+      throw ServerException(e.message ?? 'Unknown Error publishing event');
+    }
+  }
+
+  @override
   Future<void> deleteEvent(int id) async {
     try {
       final response = await apiClient.delete(ApiConstants.eventById(id));
-      if (response.statusCode != 200) {
+      if (response.statusCode != 200 && response.statusCode != 204) {
         throw ServerException('Failed to delete event');
       }
     } on DioException catch (e) {

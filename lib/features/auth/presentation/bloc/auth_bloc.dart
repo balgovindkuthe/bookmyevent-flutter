@@ -58,8 +58,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
 
   Future<void> _onCheckAuthStatus(CheckAuthStatus event, Emitter<AuthState> emit) async {
     final result = await checkLoggedInUseCase(NoParams());
-    result.fold(
-      (failure) => emit(Unauthenticated()),
+    await result.fold(
+      (failure) async => emit(Unauthenticated()),
       (isLoggedIn) async {
         if (isLoggedIn) {
           // Restore user info from secure storage

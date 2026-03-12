@@ -1,14 +1,24 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../domain/entities/event_entity.dart';
 import '../../domain/usecases/get_events_usecase.dart';
+import '../../domain/usecases/delete_event_usecase.dart';
+import '../../domain/usecases/publish_event_usecase.dart';
 import 'organizer_event.dart';
 import 'organizer_state.dart';
 
 class OrganizerBloc extends Bloc<OrganizerEvent, OrganizerState> {
   final GetEventsUseCase getEventsUseCase;
+  final DeleteEventUseCase deleteEventUseCase;
+  final PublishEventUseCase publishEventUseCase;
 
-  OrganizerBloc({required this.getEventsUseCase}) : super(OrganizerInitial()) {
+  OrganizerBloc({
+    required this.getEventsUseCase,
+    required this.deleteEventUseCase,
+    required this.publishEventUseCase,
+  }) : super(OrganizerInitial()) {
     on<FetchOrganizerEvents>(_onFetchOrganizerEvents);
+    on<DeleteEventRequested>(_onDeleteEventRequested);
+    on<PublishEventRequested>(_onPublishEventRequested);
   }
 
   Future<void> _onFetchOrganizerEvents(FetchOrganizerEvents event, Emitter<OrganizerState> emit) async {
@@ -33,6 +43,22 @@ class OrganizerBloc extends Bloc<OrganizerEvent, OrganizerState> {
           hasReachedMax: pageEvent.last,
         ));
       },
+    );
+  }
+
+  Future<void> _onDeleteEventRequested(DeleteEventRequested event, Emitter<OrganizerState> emit) async {
+    final result = await deleteEventUseCase(DeleteEventParams(eventId: event.eventId));
+    result.fold(
+      (failure) => emit(OrganizerError(failure.message)),
+      (_) => emit(EventDeletedSuccess()),
+    );
+  }
+
+  Future<void> _onPublishEventRequested(PublishEventRequested event, Emitter<OrganizerState> emit) async {
+    final result = await publishEventUseCase(PublishEventParams(eventId: event.eventId, organizerId: event.organizerId));
+    result.fold(
+      (failure) => emit(OrganizerError(failure.message)),
+      (eventData) => emit(EventPublishedSuccess(eventData)),
     );
   }
 }

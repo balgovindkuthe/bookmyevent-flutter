@@ -32,3 +32,12 @@ class OrganizerError extends OrganizerState {
 }
 
 class EventDeletedSuccess extends OrganizerState {}
+
+class EventPublishedSuccess extends OrganizerState {
+  final EventEntity event;
+
+  const EventPublishedSuccess(this.event);
+
+  @override
+  List<Object?> get props => [event];
+}

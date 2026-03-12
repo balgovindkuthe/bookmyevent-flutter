@@ -9,6 +9,7 @@ import '../bloc/organizer_state.dart';
 import '../../../../di/service_locator.dart';
 import '../../../../features/auth/presentation/bloc/auth_bloc.dart';
 import '../../../../features/auth/presentation/bloc/auth_event.dart';
+import '../../../../core/utils/snackbar_util.dart';
 
 class OrganizerDashboardScreen extends StatefulWidget {
   const OrganizerDashboardScreen({super.key});
@@ -76,8 +77,15 @@ class _OrganizerDashboardScreenState extends State<OrganizerDashboardScreen> {
         body: BlocConsumer<OrganizerBloc, OrganizerState>(
           listener: (context, state) {
             if (state is EventDeletedSuccess) {
+              SnackbarUtil.showSuccess(context, 'Event deleted successfully');
               _currentPage = 0;
               _organizerBloc.add(const FetchOrganizerEvents(page: 0, size: 10));
+            } else if (state is EventPublishedSuccess) {
+              SnackbarUtil.showSuccess(context, 'Event published successfully');
+              _currentPage = 0;
+              _organizerBloc.add(const FetchOrganizerEvents(page: 0, size: 10));
+            } else if (state is OrganizerError) {
+              SnackbarUtil.showError(context, state.message);
             }
           },
           builder: (context, state) {
@@ -113,10 +121,36 @@ class _OrganizerDashboardScreenState extends State<OrganizerDashboardScreen> {
           },
         ),
         floatingActionButton: FloatingActionButton.extended(
-          onPressed: () => context.push('/create-event'),
+          onPressed: () async {
+            final result = await context.push('/create-event');
+            if (result == true) {
+              _currentPage = 0;
+              _organizerBloc.add(const FetchOrganizerEvents(page: 0, size: 10));
+            }
+          },
           icon: const Icon(Icons.add),
           label: const Text('Create Event'),
         ),
+      ),
+    );
+  }
+
+  void _confirmDelete(BuildContext context, EventEntity event) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Delete Event'),
+        content: Text('Are you sure you want to delete "${event.title}"?'),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+              _organizerBloc.add(DeleteEventRequested(event.id));
+            },
+            child: const Text('Delete', style: TextStyle(color: Colors.red)),
+          ),
+        ],
       ),
     );
   }
@@ -144,13 +178,25 @@ class _OrganizerDashboardScreenState extends State<OrganizerDashboardScreen> {
                     ),
                   ),
                   PopupMenuButton<String>(
-                    onSelected: (value) {
-                      if (value == 'tiers') {
+                    onSelected: (value) async {
+                      if (value == 'edit') {
+                        final result = await context.push('/create-event', extra: event);
+                        if (result == true) {
+                          _currentPage = 0;
+                          _organizerBloc.add(const FetchOrganizerEvents(page: 0, size: 10));
+                        }
+                      } else if (value == 'tiers') {
                         context.push('/manage-tiers/${event.id}');
+                      } else if (value == 'publish') {
+                        _organizerBloc.add(PublishEventRequested(event.id, event.organizerId));
+                      } else if (value == 'delete') {
+                        _confirmDelete(context, event);
                       }
                     },
                     itemBuilder: (context) => [
                       const PopupMenuItem(value: 'edit', child: Text('Edit Event')),
+                      if (event.status != 'PUBLISHED')
+                        const PopupMenuItem(value: 'publish', child: Text('Publish Event')),
                       const PopupMenuItem(value: 'tiers', child: Text('Manage Ticket Tiers')),
                       const PopupMenuItem(
                           value: 'delete',
@@ -177,7 +223,10 @@ class _OrganizerDashboardScreenState extends State<OrganizerDashboardScreen> {
                     backgroundColor:
                         event.status == 'PUBLISHED' ? Colors.green.shade100 : Colors.orange.shade100,
                   ),
-                  TextButton(onPressed: () {}, child: const Text('View Analytics')),
+                  TextButton(
+                    onPressed: () => context.push('/analytics/${event.id}'),
+                    child: const Text('View Analytics'),
+                  ),
                 ],
               ),
             ],
