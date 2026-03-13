@@ -11,7 +11,8 @@ abstract class EventRemoteDataSource {
   Future<EventModel> getEventById(int id);
   Future<EventModel> createEvent(int organizerId, String title, String description, String location, DateTime eventDate, int capacity);
   Future<EventModel> updateEvent(int eventId, String title, String description, String location, DateTime eventDate, int capacity);
-  Future<EventModel> publishEvent(int eventId, int organizerId);
+  Future<EventModel> publishEvent(int eventId);
+  Future<void> cancelEvent(int eventId, int organizerId);
   Future<void> deleteEvent(int id);
   
   // Tiers
@@ -106,11 +107,10 @@ class EventRemoteDataSourceImpl implements EventRemoteDataSource {
   }
 
   @override
-  Future<EventModel> publishEvent(int eventId, int organizerId) async {
+  Future<EventModel> publishEvent(int eventId) async {
     try {
-      final response = await apiClient.post(
+      final response = await apiClient.patch(
         ApiConstants.publishEvent(eventId),
-        queryParameters: {'organizerId': organizerId},
       );
       if (response.statusCode == 200) {
         return EventModel.fromJson(response.data);
@@ -119,6 +119,21 @@ class EventRemoteDataSourceImpl implements EventRemoteDataSource {
       }
     } on DioException catch (e) {
       throw ServerException(e.message ?? 'Unknown Error publishing event');
+    }
+  }
+
+  @override
+  Future<void> cancelEvent(int eventId, int organizerId) async {
+    try {
+      final response = await apiClient.post(
+        ApiConstants.cancelEvent(eventId),
+        queryParameters: {'organizerId': organizerId},
+      );
+      if (response.statusCode != 200 && response.statusCode != 204) {
+        throw ServerException('Failed to cancel event');
+      }
+    } on DioException catch (e) {
+      throw ServerException(e.message ?? 'Unknown Error cancelling event');
     }
   }
 

@@ -19,6 +19,7 @@ import '../features/events/domain/usecases/get_event_by_id_usecase.dart';
 import '../features/events/domain/usecases/create_event_usecase.dart';
 import '../features/events/domain/usecases/update_event_usecase.dart';
 import '../features/events/domain/usecases/publish_event_usecase.dart';
+import '../features/events/domain/usecases/cancel_event_usecase.dart';
 import '../features/events/domain/usecases/delete_event_usecase.dart';
 import '../features/events/domain/usecases/get_tiers_usecase.dart';
 import '../features/events/domain/usecases/create_tier_usecase.dart';
@@ -109,6 +110,7 @@ Future<void> init() async {
   sl.registerLazySingleton(() => CreateEventUseCase(sl()));
   sl.registerLazySingleton(() => UpdateEventUseCase(sl()));
   sl.registerLazySingleton(() => PublishEventUseCase(sl()));
+  sl.registerLazySingleton(() => CancelEventUseCase(sl()));
   sl.registerLazySingleton(() => DeleteEventUseCase(sl()));
   sl.registerLazySingleton(() => GetTiersForEventUseCase(sl()));
   sl.registerLazySingleton(() => CreateTicketTierUseCase(sl()));
@@ -125,6 +127,7 @@ Future<void> init() async {
       getEventsUseCase: sl(),
       deleteEventUseCase: sl(),
       publishEventUseCase: sl(),
+      cancelEventUseCase: sl(),
     ),
   );
   sl.registerFactory(() => CreateEventBloc(createEventUseCase: sl()));

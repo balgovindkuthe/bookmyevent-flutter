@@ -9,7 +9,8 @@ abstract class EventRepository {
   Future<Either<Failure, EventEntity>> getEventById(int id);
   Future<Either<Failure, EventEntity>> createEvent(int organizerId, String title, String description, String location, DateTime eventDate, int capacity);
   Future<Either<Failure, EventEntity>> updateEvent(int eventId, String title, String description, String location, DateTime eventDate, int capacity);
-  Future<Either<Failure, EventEntity>> publishEvent(int eventId, int organizerId);
+  Future<Either<Failure, EventEntity>> publishEvent(int eventId);
+  Future<Either<Failure, void>> cancelEvent(int eventId, int organizerId);
   Future<Either<Failure, void>> deleteEvent(int id);
   // Tiers
   Future<Either<Failure, List<TicketTierEntity>>> getTiersForEvent(int eventId);

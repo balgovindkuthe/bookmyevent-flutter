@@ -33,6 +33,8 @@ class OrganizerError extends OrganizerState {
 
 class EventDeletedSuccess extends OrganizerState {}
 
+class EventCancelledSuccess extends OrganizerState {}
+
 class EventPublishedSuccess extends OrganizerState {
   final EventEntity event;
 

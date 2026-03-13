@@ -1,7 +1,7 @@
 import 'package:flutter/foundation.dart';
 
 class ApiConstants {
-  static const String baseUrl = kIsWeb ? 'http://localhost:8080/api/v1' : 'http://10.0.2.2:8080/api/v1'; // Emulator loopback or Web localhost
+  static const String baseUrl = kIsWeb ? 'http://localhost:8081/api/v1' : 'http://10.0.2.2:8081/api/v1'; // Emulator loopback or Web localhost
   // If running on physical device, change to local IP address
 
   // Auth
@@ -12,6 +12,7 @@ class ApiConstants {
   static const String events = '/events';
   static String eventById(int id) => '/events/$id';
   static String publishEvent(int id) => '/events/$id/publish';
+  static String cancelEvent(int id) => '/events/$id/cancel';
 
   // Tiers
   static String ticketTiers(int eventId) => '/events/$eventId/tiers';

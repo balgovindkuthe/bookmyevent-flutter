@@ -28,9 +28,18 @@ class DeleteEventRequested extends OrganizerEvent {
 
 class PublishEventRequested extends OrganizerEvent {
   final int eventId;
+
+  const PublishEventRequested(this.eventId);
+
+  @override
+  List<Object> get props => [eventId];
+}
+
+class CancelEventRequested extends OrganizerEvent {
+  final int eventId;
   final int organizerId;
 
-  const PublishEventRequested(this.eventId, this.organizerId);
+  const CancelEventRequested(this.eventId, this.organizerId);
 
   @override
   List<Object> get props => [eventId, organizerId];

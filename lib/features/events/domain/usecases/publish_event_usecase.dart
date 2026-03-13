@@ -12,16 +12,15 @@ class PublishEventUseCase implements UseCase<EventEntity, PublishEventParams> {
 
   @override
   Future<Either<Failure, EventEntity>> call(PublishEventParams params) async {
-    return await repository.publishEvent(params.eventId, params.organizerId);
+    return await repository.publishEvent(params.eventId);
   }
 }
 
 class PublishEventParams extends Equatable {
   final int eventId;
-  final int organizerId;
 
-  const PublishEventParams({required this.eventId, required this.organizerId});
+  const PublishEventParams({required this.eventId});
 
   @override
-  List<Object> get props => [eventId, organizerId];
+  List<Object> get props => [eventId];
 }
