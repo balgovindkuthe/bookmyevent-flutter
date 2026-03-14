@@ -161,19 +161,29 @@ class _OrganizerDashboardScreenState extends State<OrganizerDashboardScreen> {
   }
 
   void _confirmDelete(BuildContext context, EventEntity event) {
+    final message = event.status == 'DRAFT'
+        ? "Are you sure you want to permanently delete this draft event? This action cannot be undone."
+        : "Are you sure you want to permanently delete this cancelled event? This action cannot be undone.";
+
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Delete Event'),
-        content: const Text('Are you sure you want to permanently delete this cancelled event? This action cannot be undone.'),
+        title: const Text('Confirm Delete'),
+        content: Text(message),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
           ElevatedButton(
             onPressed: () {
               Navigator.pop(context);
               _organizerBloc.add(DeleteEventRequested(event.id));
             },
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.red, foregroundColor: Colors.white),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.red,
+              foregroundColor: Colors.white,
+            ),
             child: const Text('Delete Permanently'),
           ),
         ],
@@ -220,6 +230,8 @@ class _OrganizerDashboardScreenState extends State<OrganizerDashboardScreen> {
                           _confirmCancel(context, event);
                         } else if (value == 'analytics') {
                           context.push('/analytics/${event.id}');
+                        } else if (value == 'delete') {
+                          _confirmDelete(context, event);
                         }
                       },
                       itemBuilder: (context) {
@@ -228,6 +240,7 @@ class _OrganizerDashboardScreenState extends State<OrganizerDashboardScreen> {
                             const PopupMenuItem(value: 'edit', child: Text('Edit Event')),
                             const PopupMenuItem(value: 'tiers', child: Text('Manage Ticket Tiers')),
                             const PopupMenuItem(value: 'publish', child: Text('Publish Event')),
+                            const PopupMenuItem(value: 'delete', child: Text('Delete Event')),
                           ];
                         } else if (event.status == 'PUBLISHED' || event.status == 'ACTIVE') {
                           return [
